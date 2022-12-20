@@ -13,7 +13,7 @@ from pathlib import Path
 LINK = "https://activities.esn.org/activities"
 FILENAME = Path(".", "data", "activities_links.csv")
 
-def get_activities_links(url=LINK, filename=FILENAME):
+def get_activities_links(date_from, date_to, url=LINK, filename=FILENAME):
 
     # Fetching page content
     r = requests.get(url)
@@ -30,12 +30,30 @@ def get_activities_links(url=LINK, filename=FILENAME):
     list_organiser = []
 
     # Iterating through all pages
+    print("\nChecking Activities for events in the desired range...\n")
     current_page = 0
-    while current_page <= 2:
+    count = 0
+    while current_page <= last_page:
         # Fetching page content for each page
         page_url = f"https://activities.esn.org/activities?page={current_page}"
         r = requests.get(page_url)
         soup = BeautifulSoup(r.content, "html.parser")
+
+        # Checking date_to
+        dates = [datetime.strptime(x.text, "%d/%m/%Y") for x in soup.find_all("time")]
+
+        if min(dates) > date_to:
+            current_page += 1
+            continue
+        elif max(dates) < date_from:
+            break
+
+        if count % 5 == 0:
+            print(f"\r"
+                  f"\t\tChecking page {current_page}, the latest date {datetime.strftime(max(dates), '%d/%m/%Y')} is "
+                  f"within the range of {datetime.strftime(date_from, '%d/%m/%Y')} - "
+                  f"{datetime.strftime(date_to, '%d/%m/%Y')}.", end="")
+        count += 1
 
         # Fetching all information on articles on page
         list_articles = soup.find_all("article")
@@ -48,20 +66,16 @@ def get_activities_links(url=LINK, filename=FILENAME):
             url = f'https://activities.esn.org{article.find("a", text=name).get("href")}'
             list_url.append(url)
 
-            date = datetime.strptime(article.find("time").text, "%d/%m/%Y")
+            date = [datetime.strptime(x.text, "%d/%m/%Y") for x in article.find_all("time")]
             list_date.append(date)
 
             location = list(article.find("span", {"class": "act-location-city"}).parent.stripped_strings)
-            list_location.append([location])
+            list_location.append(location)
 
             organiser = list(article.find("p", {"class": "act-organiser"}).stripped_strings)
             list_organiser.append(organiser)
 
         current_page += 1
-
-        if current_page % int(last_page / 50) == 0:
-            print("\r", f"Progress: [{'=' * int(current_page / last_page * 49)}{'>'}"
-                  f"{'.' * (49 - int(current_page / last_page * 49))}]", f"{current_page}/{last_page}", end="")
 
     # Creating dataframe from scraped information for easier saving
     df = pd.DataFrame({
@@ -72,8 +86,15 @@ def get_activities_links(url=LINK, filename=FILENAME):
         "date": list_date
     })
 
+    # Splitting dates to be able to compare them with limits
+    df_date_split = pd.DataFrame(df["date"].tolist())
+    # Filtering events based on the dates - either starting or ending date needs to be in the specified range
+    df_filtered = df[(df_date_split.max(axis=1) >= date_from) &
+                     (df_date_split.min(axis=1) <= date_to)]
+
     # Saving to file
-    df.to_csv(FILENAME)
-    print("Done")
+    df_filtered.to_csv(FILENAME)
+    print("\n\nLinks to filtered activitites saved.")
+    return df_filtered
 
 

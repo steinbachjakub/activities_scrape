@@ -12,8 +12,8 @@ FILE_NAME_GOALS = Path(".", "data", "goals.csv")
 FILE_NAME_OBJECTIVES = Path(".", "data", "objectives.csv")
 
 # Select a date range which is interesting for us
-date_from = datetime(2022, 11, 29)
-date_to = datetime(2022, 12, 28)
+date_from = datetime(2022, 11, 7)
+date_to = datetime(2022, 11, 20)
 
 # Load links dataframe
 df_links = get_activities_links(date_from, date_to)

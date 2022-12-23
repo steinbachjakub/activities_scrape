@@ -1,6 +1,7 @@
 from pathlib import Path
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib import font_manager
 
 # Paths to files
 FILE_PATH_ACTIVITIES = Path(".", "data", "activities.csv")
@@ -12,6 +13,17 @@ FILE_PATH_ORGANISATIONS = Path(".", "data", "organisations.csv")
 FILE_PATH_ORGANISERS = Path(".", "data", "organisers.csv")
 
 OUTPUT_FOLDER = Path(".", "outputs")
+
+# ESN Colors
+COLORS = {
+    "darkblue": "#2E3192",
+    "cyan": "#00AEEF",
+    "magenta": "#EC008C",
+    "green": "#7AC143",
+    "orange": "#F47B20",
+    "black": "#000000",
+    "white": "#FFFFFF"
+}
 
 # Loading data
 df_activities = pd.read_csv(FILE_PATH_ACTIVITIES)
@@ -99,3 +111,33 @@ df_top_goals = df_goals.groupby("goal").agg({"goal": "count"}).rename(columns={"
       .sort_values("count", ascending=False)
 # print(df_top_goals)
 df_top_goals.to_excel(OUTPUT_FOLDER.joinpath("top_goals.xlsx"))
+
+# Visuals
+fig_causes, ax_causes = plt.subplots(1, 1, figsize=(16, 9))
+bars = ax_causes.barh(width=df_top_causes.sort_values("count")["count"], y=df_top_causes.sort_values("count").index,
+                      fc=COLORS["magenta"])
+ax_causes.set_title("Number of Events\nDedicated to Each Cause", color=COLORS["black"], weight="bold", fontsize=25, va="center", font="Lato")
+ax_causes.set_yticklabels(df_top_causes.sort_values("count").index, fontsize=18, weight="bold", font="Lato")
+ax_causes.set_xticks([])
+ax_causes.tick_params(axis=u'both', which=u'both', length=0)
+for bar in bars:
+  ax_causes.text(
+      # df_top_causes.max() + 10,
+      1,
+      bar.get_y() + bar.get_height() / 2,
+      bar.get_width(),
+      ha="left",
+      va="center",
+      color=COLORS["white"],
+      weight='bold',
+      fontsize=18
+  )
+for d in ["left", "top", "right", "bottom"]:
+    ax_causes.spines[d].set_visible(False)
+
+fig_causes.patch.set_fc(COLORS["magenta"])
+fig_causes.patch.set_alpha(0.1)
+ax_causes.patch.set_fc(COLORS["magenta"])
+ax_causes.patch.set_alpha(0.00)
+plt.subplots_adjust(left=0.3, right=0.95, top=0.85, bottom=0.05)
+plt.show()

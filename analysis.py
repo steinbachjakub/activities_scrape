@@ -13,6 +13,7 @@ FILE_PATH_ORGANISATIONS = Path(".", "data", "organisations.csv")
 FILE_PATH_ORGANISERS = Path(".", "data", "organisers.csv")
 
 OUTPUT_FOLDER = Path(".", "outputs")
+IMAGE_FOLDER = Path(".", "images")
 
 # ESN Colors
 COLORS = {
@@ -48,13 +49,19 @@ df_top_organisers.to_excel(OUTPUT_FOLDER.joinpath("top_organisers.xlsx"))
 ## Number of organisers per country
 # print("\n\nNumber of organisations involved in event preparation per country")
 agg_func = {'organiser': 'count'}
-df_organisers_per_country = pd.merge(left=df_organisers, right=df_organisations,
+df_organisers_per_country = pd.merge(left=df_organisers.groupby("organiser").agg({"organiser": "count"}).rename(columns={"organiser": "count"}).reset_index(), right=df_organisations,
                                      how="outer", left_on="organiser", right_on="organisation_name")
 df_organisers_per_country["country_name"] = df_organisers_per_country["country_name"].fillna("External Partner")
 top_organiser_countries = df_organisers_per_country.groupby("country_name").agg(agg_func)\
     .rename(columns={"organiser": "count"}).sort_values("count", ascending=False)
 # print(top_organiser_countries)
+df_countries_org_number = df_organisations.groupby("country_name").agg({"country_name": "count"})\
+      .rename(columns={"country_name": "total_count"})
+df_countries_org_number["ratio"] = df_countries_org_number.join(top_organiser_countries)["count"] / \
+                                   df_countries_org_number.join(top_organiser_countries)["total_count"]
+
 top_organiser_countries.to_excel(OUTPUT_FOLDER.joinpath("top_organiser_countries.xlsx"))
+df_countries_org_number.to_excel(OUTPUT_FOLDER.joinpath("top_organiser_countries_ratio.xlsx"))
 
 ## Ratio of sections organising at least one event
 df_country_ratio = pd.merge(left=df_organisers.drop_duplicates("organiser"),
@@ -113,31 +120,111 @@ df_top_goals = df_goals.groupby("goal").agg({"goal": "count"}).rename(columns={"
 df_top_goals.to_excel(OUTPUT_FOLDER.joinpath("top_goals.xlsx"))
 
 # Visuals
-fig_causes, ax_causes = plt.subplots(1, 1, figsize=(16, 9))
-bars = ax_causes.barh(width=df_top_causes.sort_values("count")["count"], y=df_top_causes.sort_values("count").index,
-                      fc=COLORS["magenta"])
-ax_causes.set_title("Number of Events\nDedicated to Each Cause", color=COLORS["black"], weight="bold", fontsize=25, va="center", font="Lato")
-ax_causes.set_yticklabels(df_top_causes.sort_values("count").index, fontsize=18, weight="bold", font="Lato")
-ax_causes.set_xticks([])
-ax_causes.tick_params(axis=u'both', which=u'both', length=0)
-for bar in bars:
-  ax_causes.text(
-      # df_top_causes.max() + 10,
-      1,
-      bar.get_y() + bar.get_height() / 2,
-      bar.get_width(),
-      ha="left",
-      va="center",
-      color=COLORS["white"],
-      weight='bold',
-      fontsize=18
-  )
-for d in ["left", "top", "right", "bottom"]:
-    ax_causes.spines[d].set_visible(False)
+plt.rcParams['font.family'] = 'Lato'
+## Simple horizontal bar charts
+data = [df_top_causes.sort_values("count")["count"],
+        df_top_organisers.sort_values("count")["count"][-10:],
+        df_countries_org_number.sort_values("ratio")["ratio"][-10:],
+        top_organiser_countries[top_organiser_countries.index != "External Partner"].sort_values("count")["count"][-10:],
+        df_top_types.sort_values("count")["count"][-10:],
+        df_top_goals.sort_values("count")["count"][-10:],
+        df_top_objectives.sort_values("count")["count"][-10:],
+        df_participants_per_country.groupby("country_name").agg({"participants": "sum"}).sort_values("participants")["participants"][-10:]]
 
-fig_causes.patch.set_fc(COLORS["magenta"])
-fig_causes.patch.set_alpha(0.1)
-ax_causes.patch.set_fc(COLORS["magenta"])
-ax_causes.patch.set_alpha(0.00)
-plt.subplots_adjust(left=0.3, right=0.95, top=0.85, bottom=0.05)
+labels = [df_top_causes.sort_values("count").index,
+          df_top_organisers.sort_values("count").index[-10:],
+          df_countries_org_number.sort_values("ratio").index[-10:],
+          top_organiser_countries[top_organiser_countries.index != "External Partner"].sort_values("count").index[-10:],
+          df_top_types.sort_values("count").index[-10:],
+          df_top_goals.sort_values("count").index[-10:],
+          df_top_objectives.sort_values("count").index[-10:],
+          df_participants_per_country.groupby("country_name").agg({"participants": "sum"}).sort_values("participants").index[-10:]]
+
+titles = ["Number of Events\nDedicated to Each Cause",
+          "Top 10 Organisers",
+          "Top 10 Countries with\nthe Most Organisation Representation",
+          "Top 10 Countries with\nthe Most Participating Organisations",
+          "Top 10 Represented Types of Events",
+          "Top 10 Reached Sustainable Development Goals",
+          "Top 10 Reached Objectives",
+          "Top 10 Countries by Number of Participants"]
+
+styles = ["int", "int", "perc", "int", "int", "int", "int", "int"]
+# color = "darkblue"
+
+# for color in COLORS.keys():
+#     for i, (dataset, label, title, style) in enumerate(zip(data, labels, titles, styles)):
+#         fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+#         bars = ax.barh(width=dataset, y=label,
+#                        fc=COLORS[color])
+#         ax.set_title(title, color=COLORS["black"], weight="bold", fontsize=25, va="center", font="Lato")
+#         ax.set_yticklabels(label, fontsize=18, weight="bold", font="Lato")
+#         ax.set_xticks([])
+#         ax.tick_params(axis=u'both', which=u'both', length=0)
+#         for bar in bars:
+#           ax.text(
+#               # df_top_causes.max() + 10,
+#               0.01 * dataset.max(),
+#               bar.get_y() + bar.get_height() / 2,
+#               int(bar.get_width()) if style == "int" else f"{bar.get_width():.0%}",
+#               ha="left",
+#               va="center",
+#               color=COLORS["white"],
+#               weight='bold',
+#               fontsize=18
+#           )
+#         for d in ["left", "top", "right", "bottom"]:
+#             ax.spines[d].set_visible(False)
+#
+#         fig.patch.set_fc(COLORS[color])
+#         fig.patch.set_alpha(0.2)
+#         ax.patch.set_fc(COLORS[color])
+#         ax.patch.set_alpha(0.00)
+#         # plt.subplots_adjust(left=0.4, right=0.95, top=0.85, bottom=0.05)
+#         plt.tight_layout()
+#         fig.savefig(IMAGE_FOLDER.joinpath(f"{color}-fig{i}.png"))
+
+## Pie Chart
+def make_autopct(values):
+    def my_autopct(pct):
+        total = sum(values)
+        val = int(round(pct*total/100.0))
+        return '{p:.2f}%\n({v:d})'.format(p=pct,v=val)
+    return my_autopct
+fig, ax = plt.subplots(1, 1, figsize=(9, 9))
+_, _, autotexts = ax.pie(df_organisation_types["count"],
+                         labels=["Local Sections", "External Partners", "National Organisations"],
+                         textprops={'fontsize': 18, "weight": "bold"},
+                         colors=[COLORS[key] for key in ["darkblue", "magenta", "green"]],
+                         autopct=make_autopct(df_organisation_types["count"]),
+                         wedgeprops={"edgecolor": COLORS["black"],
+                                     'linewidth': 1,
+                                     'antialiased': True}
+                         )
+ax.set_title("Participating Organisation Types", color=COLORS["black"], weight="bold", fontsize=25, va="center",
+             font="Lato")
+plt.tight_layout()
+
+for autotext in autotexts:
+    autotext.set_color(COLORS["white"])
+    autotext.set_fontsize(18)
+    autotext.set_fontweight("bold")
+
+## Combined Horizontal Bar Chart
+fig, ax = plt.subplots(1, 1, figsize=(16, 9))
+ax2 = ax.twinx()
+width = 0.4
+df_countries_org_number["count"] = df_countries_org_number["total_count"] * df_countries_org_number["ratio"]
+df_countries_org_number.sort_index()["count"].plot(kind='bar',
+                                                                    color=COLORS["darkblue"],
+                                                                    ax=ax,
+                                                                    width=width,
+                                                                    position=1)
+df_countries_org_number.sort_index().ratio.plot(kind='bar',
+                                                              color=COLORS["magenta"],
+                                                              ax=ax2,
+                                                              width=width,
+                                                              position=0)
+# print(df_countries_org_number.sort_values("ratio"))
+
 plt.show()

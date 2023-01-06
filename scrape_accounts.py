@@ -22,7 +22,8 @@ def get_organisations():
         "organisation_link": [f"https://accounts.esn.org/{x.get('href')}" for x in a_countries],
         "country_name": [x.text for x in a_countries],
         "country_abbreviation": [x.get('href').split("/")[-1].upper() for x in a_countries],
-        "type": ["national" for x in a_countries]
+        "type": ["national" for x in a_countries],
+        "country_location": []
     }
 
     # Save all organisations under countries
@@ -30,13 +31,16 @@ def get_organisations():
     for country, link in zip(countries["country_name"], countries["organisation_link"]):
         response_country = requests.get(link)
         soup_country = BeautifulSoup(response_country.content, "html.parser")
+        country_location = soup_country.find("span", {"class": "country"}).text
+        countries["country_location"].append(country_location)
         a_sections = soup_country.find_all("h2", {"class": "location-title", "property": "name"})
         sections = {
             "organisation_name": [x.text for x in a_sections],
             "organisation_link": [f"https://accounts.esn.org/{x.get('href')}" for x in a_sections],
             "country_name": [country for x in a_sections],
             "country_abbreviation": [link.split("/")[-1].upper() for x in a_sections],
-            "type": ["local" for x in a_sections]
+            "type": ["local" for x in a_sections],
+            "country_location": [country_location for x in a_sections]
         }
         list_sections.append(sections)
 

@@ -4,16 +4,16 @@ from matplotlib import pyplot as plt
 from matplotlib import font_manager
 
 # Paths to files
-FILE_PATH_ACTIVITIES = Path(".", "data", "activities.csv")
-FILE_PATH_ACTIVITY_TYPE = Path(".", "data", "activity_type.csv")
-FILE_PATH_CAUSES = Path(".", "data", "causes.csv")
-FILE_PATH_GOALS = Path(".", "data", "goals.csv")
-FILE_PATH_OBJECTIVES = Path(".", "data", "objectives.csv")
-FILE_PATH_ORGANISATIONS = Path(".", "data", "organisations.csv")
-FILE_PATH_ORGANISERS = Path(".", "data", "organisers.csv")
+FILE_PATH_ACTIVITIES = Path("..", "data", "activities.csv")
+FILE_PATH_ACTIVITY_TYPE = Path("..", "data", "activity_type.csv")
+FILE_PATH_CAUSES = Path("..", "data", "causes.csv")
+FILE_PATH_GOALS = Path("..", "data", "goals.csv")
+FILE_PATH_OBJECTIVES = Path("..", "data", "objectives.csv")
+FILE_PATH_ORGANISATIONS = Path("..", "data", "organisations.csv")
+FILE_PATH_ORGANISERS = Path("..", "data", "organisers.csv")
 
-OUTPUT_FOLDER = Path(".", "outputs")
-IMAGE_FOLDER = Path(".", "images")
+OUTPUT_FOLDER = Path("..", "outputs")
+IMAGE_FOLDER = Path("..", "images")
 
 # ESN Colors
 COLORS = {
@@ -150,7 +150,7 @@ titles = ["Number of Events\nDedicated to Each Cause",
           "Top 10 Countries by Number of Participants"]
 
 styles = ["int", "int", "perc", "int", "int", "int", "int", "int"]
-# color = "darkblue"
+color = "darkblue"
 
 # for color in COLORS.keys():
 #     for i, (dataset, label, title, style) in enumerate(zip(data, labels, titles, styles)):

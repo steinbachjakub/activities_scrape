@@ -75,8 +75,8 @@ causes = df_causes.groupby("cause").agg({"cause": "count"}).rename(columns={"cau
 organisers = df_organisers.groupby("organiser").agg({"organiser": "count"}).rename(columns={"organiser": "values"}).\
     sort_values("values")
 organisers = organisers[organisers["values"] >= organisers["values"][-5]]
-countries = df_organisers.merge(df_organisations[["organisation_name", "country_name"]], how="left",
-                                left_on="organiser", right_on="organisation_name")\
+countries = df_activities[["submitting_organiser"]].merge(df_organisations[["organisation_name", "country_name"]], how="left",
+                                left_on="submitting_organiser", right_on="organisation_name")\
     .groupby("country_name").agg({"country_name": "count"}).rename(columns={"country_name": "values"})\
     .sort_values("values")
 countries = countries[countries["values"] >= countries["values"][-5]]
@@ -194,38 +194,11 @@ document.add_paragraph("That's all from us for now. See you next month!", style=
 document.add_paragraph("Yours faithfully,\nSocial Impact Team", style=text_style)
 document.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.LEFT
 document.save('demo.docx')
-
+Path("fig_temp.png").unlink()
 # plt.show()
 
-# p.add_run('bold').bold = True
-# p.add_run(' and some ')
-# p.add_run('italic.').italic = True
-
-# document.add_heading('Number of Events Dedicated to Each Cause', level=1)
-# document.add_paragraph('Intense quote', style='Intense Quote')
-#
-# document.add_paragraph(
-#     'first item in unordered list', style='List Bullet'
-# )
-# document.add_paragraph(
-#     'first item in ordered list', style='List Number'
-# )
-#
-# records = (
-#     (3, '101', 'Spam'),
-#     (7, '422', 'Eggs'),
-#     (4, '631', 'Spam, spam, eggs, and spam')
-# )
-#
-# table = document.add_table(rows=1, cols=3)
-# hdr_cells = table.rows[0].cells
-# hdr_cells[0].text = 'Qty'
-# hdr_cells[1].text = 'Id'
-# hdr_cells[2].text = 'Desc'
-# for qty, id, desc in records:
-#     row_cells = table.add_row().cells
-#     row_cells[0].text = str(qty)
-#     row_cells[1].text = id
-#     row_cells[2].text = desc
-#
-# document.add_page_break()
+print(df_activities[["submitting_organiser"]].merge(df_organisations[["organisation_name", "country_name"]], how="left",
+                                left_on="submitting_organiser", right_on="organisation_name")\
+    .groupby("country_name").agg({"country_name": "count"}).rename(columns={"country_name": "values"})\
+    .sort_values("values").sum())
+print(df_activities.shape)

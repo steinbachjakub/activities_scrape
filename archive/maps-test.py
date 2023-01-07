@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import geopandas as gpd
-import contextily as ctx
 from pathlib import Path
 from matplotlib.lines import Line2D
 
@@ -69,16 +68,18 @@ ax.set_yticks([])
 borders = events_countries_count["event_count"].quantile([0, 0.25, 0.5, 0.75, 1], interpolation="nearest").values
 borders[0] = 0
 # Creating labels
-legend_labels = []
+legend_labels = ["no submission"]
 for i in range(len(borders) - 1):
     legend_labels.append(f"{borders[i] + 1} - {borders[i + 1]}")
 # Legend
 custom_lines = [Line2D([0], [0], color=COLORS["darkblue"], lw=4),
                 Line2D([0], [0], color=COLORS["cyan"], lw=4),
                 Line2D([0], [0], color=COLORS["orange"], lw=4),
-                Line2D([0], [0], color=COLORS["magenta"], lw=4)
+                Line2D([0], [0], color=COLORS["magenta"], lw=4),
+                Line2D([0], [0], color=COLORS["black"], lw=4)
                 ]
 
 ax.legend(custom_lines, legend_labels[-1::-1], title="Number of Submitted Events", loc="lower right")
 
+print(events_countries_count)
 plt.show()

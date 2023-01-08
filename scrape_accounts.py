@@ -15,6 +15,7 @@ def get_organisations():
     response = requests.get(URL)
     soup = BeautifulSoup(response.content, "html.parser")
 
+    print("\nDownloading data from ESN Accounts...")
     # Save all country names and links to their pages
     a_countries = soup.find_all("a", {"href": re.compile("/country/")})
     countries = {

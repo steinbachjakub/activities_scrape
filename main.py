@@ -6,6 +6,7 @@ from datetime import datetime
 
 from save_data import save_activity_data
 from scrape_accounts import get_organisations
+from report_generation import generate_doc_report
 
 # Select a date range which is interesting for us
 date_from = datetime(2022, 11, 29)
@@ -17,4 +18,9 @@ df_activities, df_organisers, df_causes, df_activity_type, df_goals, df_objectiv
 
 # Import info on ESN Organisations
 df_organisations = get_organisations()
+
+# Generate document report
+date_from_text = date_from.strftime("%B %d, %Y")
+date_to_text = date_to.strftime("%B %d, %Y")
+generate_doc_report(date_from_text, date_to_text)
 

@@ -56,12 +56,12 @@ def save_activity_data(date_from, date_to):
     df_goals = pd.concat(list_goals)
     df_objectives = pd.concat(list_objectives)
 
-    print(df_activities)
-    print(df_organisers)
-    print(df_causes)
-    print(df_activity_type)
-    print(df_goals)
-    print(df_objectives)
+    # print(df_activities)
+    # print(df_organisers)
+    # print(df_causes)
+    # print(df_activity_type)
+    # print(df_goals)
+    # print(df_objectives)
 
 
     df_activities.to_csv(FILE_NAME_ACTIVITIES)

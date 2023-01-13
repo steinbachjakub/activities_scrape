@@ -20,7 +20,7 @@ df_activities, df_organisers, df_causes, df_activity_type, df_goals, df_objectiv
 df_organisations = get_organisations()
 
 # Generate document report
-date_from_text = date_from.strftime("%B %d, %Y")
-date_to_text = date_to.strftime("%B %d, %Y")
+date_from_text = date_from.strftime("%b %d, %Y")
+date_to_text = date_to.strftime("%b %d, %Y")
 generate_doc_report(date_from_text, date_to_text)
 

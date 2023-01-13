@@ -12,24 +12,17 @@ FILE_PATH_ORGANISATIONS = Path(".", ".", ".", "data", "organisations.csv")
 FILE_PATH_ORGANISERS = Path(".", ".", ".", "data", "organisers.csv")
 PATH_COUNTRIES = Path("dev", "files", "countries.geojson")
 
-# LOADING SCRAPED DATA
-df_activities = pd.read_csv(FILE_PATH_ACTIVITIES)
-df_activity_type = pd.read_csv(FILE_PATH_ACTIVITY_TYPE)
-df_causes = pd.read_csv(FILE_PATH_CAUSES)
-df_goals = pd.read_csv(FILE_PATH_GOALS)
-df_objectives = pd.read_csv(FILE_PATH_OBJECTIVES)
-df_organisations = pd.read_csv(FILE_PATH_ORGANISATIONS)
-df_organisers = pd.read_csv(FILE_PATH_ORGANISERS)
-
-# LOADING COUNTRY MAP DATA
-df_organisations["base_color"] = "black"
-gdf_countries = gpd.read_file(PATH_COUNTRIES)
-gdf_countries = gdf_countries.merge(df_organisations[["country_location", "base_color"]], how="left", left_on="ADMIN",
-                                    right_on="country_location").drop("country_location", axis=1)
-gdf_countries["base_color"] = gdf_countries["base_color"].fillna("grey")
-
 
 def prepare_chart_datasets():
+    # Loading scraped data
+    df_activities = pd.read_csv(FILE_PATH_ACTIVITIES)
+    df_activity_type = pd.read_csv(FILE_PATH_ACTIVITY_TYPE)
+    df_causes = pd.read_csv(FILE_PATH_CAUSES)
+    df_goals = pd.read_csv(FILE_PATH_GOALS)
+    df_objectives = pd.read_csv(FILE_PATH_OBJECTIVES)
+    df_organisations = pd.read_csv(FILE_PATH_ORGANISATIONS)
+    df_organisers = pd.read_csv(FILE_PATH_ORGANISERS)
+
     # Analysing loaded data
     causes = df_causes.groupby("cause").agg({"cause": "count"}).rename(columns={"cause": "values"})\
         .sort_values("values")
@@ -58,6 +51,18 @@ def prepare_chart_datasets():
 
 
 def prepare_map_datasets():
+    # Loading scraped data
+    df_activities = pd.read_csv(FILE_PATH_ACTIVITIES)
+    df_organisations = pd.read_csv(FILE_PATH_ORGANISATIONS)
+
+    # Loading country data map
+    df_organisations["base_color"] = "black"
+    gdf_countries = gpd.read_file(PATH_COUNTRIES)
+    gdf_countries = gdf_countries.merge(df_organisations[["country_location", "base_color"]], how="left",
+                                        left_on="ADMIN", right_on="country_location").drop("country_location", axis=1)
+    gdf_countries["base_color"] = gdf_countries["base_color"].fillna("grey")
+
+    # Analysing data
     df_events_org_country = df_activities[["submitting_organiser", "participants"]]\
         .merge(df_organisations, how="left", left_on="submitting_organiser", right_on="organisation_name")
     events_countries_count = df_events_org_country.groupby("country_location").agg({"country_location": "count"}) \

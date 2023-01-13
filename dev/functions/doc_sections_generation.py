@@ -6,14 +6,13 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 # FILE PATHS
 FILE_PATH_ACTIVITIES = Path(".", ".", ".", "data", "activities.csv")
 
-# LOADING SCRAPED DATA
-df_activities = pd.read_csv(FILE_PATH_ACTIVITIES)
-
 def generate_doc_intro(document, styles, date_from, date_to):
+    df_activities = pd.read_csv(FILE_PATH_ACTIVITIES)
+
     title_style, header_style, text_style = styles
     document.add_paragraph('Monthly Activities Report', style=title_style)
     document.add_paragraph(
-        f'Dear network, this is the regular report of events submitted in ESN Activities. Below, you can find some highlights from the past month (for the period of {date_from} to {date_to}).',
+        f'Dear network, this is the regular report of events submitted in ESN Activities. Below, you can find some highlights (for the period of {date_from} to {date_to}).',
         style=text_style)
     p = document.add_paragraph(style=text_style)
     p.add_run(
@@ -22,7 +21,7 @@ def generate_doc_intro(document, styles, date_from, date_to):
     p.add_run(".").bold = True
     document.add_paragraph('Few Numbers First', style=header_style)
     document.add_paragraph(
-        f"In the past month, total of {df_activities.shape[0]:,} events were organised. The total of {df_activities['participants'].sum():,} participants joined our events which results in the average of {df_activities['participants'].mean():.2f} participants per one event.",
+        f"During the period of {date_from} to {date_to}, the total of {df_activities.shape[0]:,} events were organised. All of our events combined, we reached {df_activities['participants'].sum():,} participants joining our events which results in the average of {df_activities['participants'].mean():.2f} participants per one event.",
         style=text_style)
     document.add_paragraph(
         "You can see the comparison of event and participant numbers in the maps below.",

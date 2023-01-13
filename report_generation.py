@@ -7,11 +7,13 @@ from dev.functions.chart_generation import generate_bar_chart, generate_map_char
 from dev.functions.chart_datasets import prepare_chart_datasets, prepare_map_datasets
 from dev.functions.doc_sections_generation import generate_doc_intro, generate_doc_section, generate_doc_outro
 
-# Dates
 GRAPH_TITLES_PATH = Path("dev", "files", "titles_graphs.txt")
 GRAPH_TEXTS_PATH = Path("dev", "files", "texts_graphs.txt")
 GRAPH_STYLE_PATH = Path("dev", "files", "style_graphs.mplstyle")
 
+DOCUMENT_SAVE_PATH = Path("reports")
+if not DOCUMENT_SAVE_PATH.exists():
+    DOCUMENT_SAVE_PATH.mkdir()
 
 def generate_doc_report(date_from, date_to):
     print("\n Generating document report...")
@@ -65,6 +67,6 @@ def generate_doc_report(date_from, date_to):
     # Generating the final word
     generate_doc_outro(document, styles)
     # Saving the document
-    document.save('demo.docx')
+    document.save(DOCUMENT_SAVE_PATH.joinpath(f'ESN Activities Report from {date_from} to {date_to}.docx'))
     # Deleting the temp file
     Path("fig_temp.png").unlink()

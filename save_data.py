@@ -44,8 +44,8 @@ def save_activity_data(date_from, date_to):
         list_objectives.append(df_objectives_temp)
 
         if index % max(int(links_count / 50), 1) == 0:
-            print("\r", f"\t\tProgress: [{'=' * int(index / links_count * 49)}{'>'}"
-                        f"{'.' * (49 - int(index / links_count * 49))}]", f"{index}/{links_count}", end="")
+            print("\r", f"\t\tProgress: [{'=' * int((index + 1) / links_count * 49)}{'>'}"
+                        f"{'.' * (49 - int((index + 1) / links_count * 49))}]", f"{index}/{links_count}", end="")
 
     print("\n\nDownload complete.")
 

@@ -11,9 +11,12 @@ import re
 from pathlib import Path
 
 LINK = "https://activities.esn.org/activities"
-FILENAME = Path(".", "data", "activities_links.csv")
+DATA_PATH = Path(".", "data")
+if not DATA_PATH.exists():
+    DATA_PATH.mkdir()
 
-def get_activities_links(date_from, date_to, url=LINK, filename=FILENAME):
+
+def get_activities_links(date_from, date_to, url=LINK, path=DATA_PATH):
 
     # Fetching page content
     r = requests.get(url)
@@ -62,8 +65,7 @@ def get_activities_links(date_from, date_to, url=LINK, filename=FILENAME):
         for article in list_articles:
             name = list(article.find("div", {"class": re.compile("eg-c-card-title act-header")}).stripped_strings)[0]
             list_name.append(name)
-
-            url = f'https://activities.esn.org{article.find("a", text=name).get("href")}'
+            url = f'https://activities.esn.org{article.find("div", {"class": re.compile("eg-c-card-title act-header")}).find("a", {"href": re.compile("/activity/")}).get("href")}'
             list_url.append(url)
 
             date = [datetime.strptime(x.text, "%d/%m/%Y") for x in article.find_all("time")]
@@ -93,7 +95,7 @@ def get_activities_links(date_from, date_to, url=LINK, filename=FILENAME):
                      (df_date_split.min(axis=1) <= date_to)]
 
     # Saving to file
-    df_filtered.to_csv(FILENAME)
+    df_filtered.to_csv(path.joinpath("activities_links.csv"))
     print("\n\nLinks to filtered activitites saved.")
     return df_filtered
 

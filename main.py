@@ -9,8 +9,8 @@ from scrape_accounts import get_organisations
 from report_generation import generate_doc_report
 
 # Select a date range which is interesting for us
-date_from = datetime(2022, 11, 29)
-date_to = datetime(2022, 12, 28)
+date_from = datetime(2023, 1, 1)
+date_to = datetime(2023, 1, 26)
 
 # Save data
 dfs = save_activity_data(date_from, date_to)
